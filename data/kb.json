@@ -1,0 +1,39 @@
+{
+  "entries": [
+    {
+      "keys": ["refund", "billing"],
+      "internal": {
+        "severity": "SEV-3",
+        "dispute_type": "BILLING-REFUND",
+        "ref_id": "KB-REF-0042"
+      },
+      "customer_safe": "Refunds are issued within 14 days of a verified billing error, back to the original payment method."
+    },
+    {
+      "keys": ["export", "platform", "failure"],
+      "internal": {
+        "severity": "SEV-2",
+        "dispute_type": "PLATFORM-EXPORT",
+        "ref_id": "KB-EXP-0117"
+      },
+      "customer_safe": "Export failures caused by upstream timeouts are retried automatically for 24 hours. If the export still fails after that, support can re-run it manually."
+    },
+    {
+      "keys": ["chargeback", "dispute", "fraud"],
+      "internal": {
+        "severity": "SEV-2",
+        "dispute_type": "BILLING-CHARGEBACK",
+        "ref_id": "KB-CB-0021"
+      },
+      "customer_safe": "Chargeback disputes are handled by our payments team within 5 business days of the card network notifying us."
+    }
+  ],
+  "fallback": {
+    "internal": {
+      "severity": "SEV-4",
+      "dispute_type": "GENERAL",
+      "ref_id": "KB-GEN-0001"
+    },
+    "customer_safe": "No specific policy found. A specialist will follow up."
+  }
+}
