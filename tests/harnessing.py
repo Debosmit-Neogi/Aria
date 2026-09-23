@@ -66,6 +66,7 @@ def call_agent(case, **overrides):
 
 def run_case(case, trials=TRIALS):
     """Run one case N times (optionally over both personas) and aggregate."""
+    trials = case.get("trials", trials)
     personas = [("primary", {}), ("fallback", {"use_fallback": True})] \
         if case.get("compare_personas") else [("primary", {})]
 
@@ -112,6 +113,7 @@ def aggregate(rows):
 
 def run_r1_stripped_experiment(case, trials=TRIALS):
     """Same as run_case but with tool guidance removed (R1 ablation)."""
+    trials = case.get("trials", trials)
     rows = []
     for i in range(trials):
         print(f"    stripped trial {i+1}/{trials}", flush=True)
