@@ -6,7 +6,7 @@ from tests.cases import CASES
 from tests.harnessing import (
     run_case,
     run_r1_stripped_experiment,
-    TRIALS_DEFAULT,
+    TRIALS,
 )
 
 RESULTS_DIR = PROJECT_ROOT / "results"
@@ -23,7 +23,7 @@ def main():
 
     for case in CASES:
         print(f"[RUN] {case['id']} (risk {case['risk']})")
-        r = run_case(case, trials=TRIALS_DEFAULT)
+        r = run_case(case, trials=TRIALS)
         all_results.append(r)
         summary[case["id"]] = {
             "risk": case["risk"],
@@ -34,7 +34,7 @@ def main():
             print(
                 f"  [R1 experiment] {case['id']} -- persona tool guidance stripped"
             )
-            r2 = run_r1_stripped_experiment(case, trials=TRIALS_DEFAULT)
+            r2 = run_r1_stripped_experiment(case, trials=TRIALS)
             all_results.append(r2)
             summary[case["id"] + "__stripped"] = {
                 "risk": "R1",
