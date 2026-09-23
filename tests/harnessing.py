@@ -109,9 +109,7 @@ def aggregate(rows):
     }
 
 
-# ---------- ablation ----------
-
-def run_stripped(case, trials=TRIALS):
+def run_r1_stripped_experiment(case, trials=TRIALS):
     """Same as run_case but with tool guidance removed (R1 ablation)."""
     rows = []
     for i in range(trials):
