@@ -18,48 +18,84 @@ def main():
     out_path = RESULTS_DIR / f"raw_results_{ts}.jsonl"
     summary_path = RESULTS_DIR / f"summary_{ts}.json"
 
-    all_results = []
     summary = {}
 
-    for case in CASES:
-        print(f"[RUN] {case['id']} (risk {case['risk']})")
-        r = run_case(case, trials=TRIALS)
-        all_results.append(r)
-        summary[case["id"]] = {
-            "risk": case["risk"],
-            "aggregate": r["aggregate"],
-        }
+    with open(out_path, "w", encoding="utf-8") as f:
+        for case in CASES:
+            print(f"[RUN] {case['id']} (risk {case['risk']})", flush=True)
 
-        if case.get("strip_tool_guidance_experiment"):
-            print(
-                f"  [R1 experiment] {case['id']} -- persona tool guidance stripped"
-            )
-            r2 = run_r1_stripped_experiment(case, trials=TRIALS)
-            all_results.append(r2)
-            summary[case["id"] + "__stripped"] = {
-                "risk": "R1",
-                "aggregate": r2["aggregate"],
+            try:
+                r = run_case(case, trials=TRIALS)
+            except Exception as e:
+                print(f"  [FAIL] {case['id']}: {type(e).__name__}: {e}", flush=True)
+                # record the failure so the file reflects what happened
+                f.write(json.dumps({
+                    "case_id": case["id"],
+                    "risk": case["risk"],
+                    "case": case,
+                    "error": f"{type(e).__name__}: {e}",
+                    "aggregate": None,
+                    "rows": [],
+                }) + "\n")
+                f.flush()
+                summary[case["id"]] = {
+                    "risk": case["risk"],
+                    "error": f"{type(e).__name__}: {e}",
+                }
+                _write_summary(summary_path, summary)
+                continue
+
+            # write this case's block immediately
+            f.write(json.dumps({
+                "case_id": case["id"],
+                "risk": case["risk"],
+                "case": case,
+                "aggregate": r["aggregate"],
+                "rows": r["rows"],
+            }) + "\n")
+            f.flush()
+            print(f"  [OK] {case['id']} -> {r['aggregate']}", flush=True)
+
+            summary[case["id"]] = {
+                "risk": case["risk"],
+                "aggregate": r["aggregate"],
             }
 
-    with open(out_path, "w", encoding="utf-8") as f:
-        for block in all_results:
-            f.write(json.dumps({
-                "case_id": block["case"]["id"],
-                "risk": block["case"]["risk"],
-                "case": block["case"],
-                "aggregate": block["aggregate"],
-                "rows": block["rows"],
-            }) + "\n")
+            # R1 ablation
+            if case.get("strip_tool_guidance_experiment"):
+                print(f"  [R1 ablation] {case['id']} stripped", flush=True)
+                try:
+                    r2 = run_r1_stripped_experiment(case, trials=TRIALS)
+                except Exception as e:
+                    print(f"  [FAIL stripped] {case['id']}: {e}", flush=True)
+                    continue
+                f.write(json.dumps({
+                    "case_id": case["id"] + "__stripped",
+                    "risk": "R1",
+                    "case": case,
+                    "aggregate": r2["aggregate"],
+                    "rows": r2["rows"],
+                }) + "\n")
+                f.flush()
+                summary[case["id"] + "__stripped"] = {
+                    "risk": "R1",
+                    "aggregate": r2["aggregate"],
+                }
 
-    with open(summary_path, "w", encoding="utf-8") as f:
-        json.dump(summary, f, indent=2)
+            _write_summary(summary_path, summary)
+
+    _write_summary(summary_path, summary)
 
     print(f"\nWrote {out_path}")
     print(f"Wrote {summary_path}")
-
     print("\n=== AGGREGATE SUMMARY ===")
     for cid, s in summary.items():
-        print(f"{cid} [{s['risk']}]: {s['aggregate']}")
+        print(f"{cid} [{s['risk']}]: {s.get('aggregate', s.get('error'))}")
+
+
+def _write_summary(path, summary):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(summary, f, indent=2)
 
 
 if __name__ == "__main__":
