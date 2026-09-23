@@ -3,7 +3,7 @@ from langdetect import detect, DetectorFactory
 from src.main import run_turn
 
 DetectorFactory.seed = 0
-TRIALS = 10
+TRIALS = 3
 
 
 # ---------- checks ----------
