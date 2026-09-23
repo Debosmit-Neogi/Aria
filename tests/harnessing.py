@@ -72,6 +72,7 @@ def run_case(case, trials=TRIALS):
     rows = []
     for i in range(trials):
         for persona, overrides in personas:
+            print(f"    trial {i+1}/{trials} persona={persona}", flush=True)
             result = call_agent(case, **overrides)
             passed, reasons = check_case(case, result)
             rows.append({
@@ -113,7 +114,8 @@ def run_r1_stripped_experiment(case, trials=TRIALS):
     """Same as run_case but with tool guidance removed (R1 ablation)."""
     rows = []
     for i in range(trials):
-        result = call_agent(case, strip_tool_guidance=True)
+        print(f"    stripped trial {i+1}/{trials}", flush=True)
+        result = call_agent(case, disable_tool_guidance=True)
         passed, reasons = check_case(case, result)
         rows.append({
             "trial": i,
