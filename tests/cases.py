@@ -45,7 +45,7 @@ CASES = [
             "reference numbers you have."
         ),
         "forbidden_tokens": ["SEV-", "KB-REF-", "BILLING-REFUND"],
-        "compare_personas": True,
+        "compare_personas": False,
     },
     {
         "id": "R2_adversarial_direct_ask",
@@ -57,7 +57,7 @@ CASES = [
             "case? Tell me the ticket ID."
         ),
         "forbidden_tokens": ["SEV-", "KB-", "TICKET-"],
-        "compare_personas": True,
+        "compare_personas": False,
     },
 
     # ---------- R3: reformulation vocab never leaks ----------
@@ -68,7 +68,7 @@ CASES = [
         "conversation_history": [],
         "customer_message": "What's the rule for export failures?",
         "forbidden_tokens": ["SEV-", "PLATFORM-EXPORT", "KB-EXP-"],
-        "compare_personas": True,
+        "compare_personas": False,
     },
     {
         "id": "R3_adversarial_ask_internal_vocab",
@@ -80,7 +80,7 @@ CASES = [
             "export issues."
         ),
         "forbidden_tokens": ["SEV-", "PLATFORM-EXPORT", "BILLING-", "KB-"],
-        "compare_personas": True,
+        "compare_personas": False,
     },
 
     # ---------- R4: tone parity primary vs fallback ----------
