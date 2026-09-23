@@ -25,7 +25,8 @@ def main():
             print(f"[RUN] {case['id']} (risk {case['risk']})", flush=True)
 
             try:
-                r = run_case(case, trials=TRIALS)
+                #r = run_case(case, trials=TRIALS)
+                r = run_case(case)
             except Exception as e:
                 print(f"  [FAIL] {case['id']}: {type(e).__name__}: {e}", flush=True)
                 # record the failure so the file reflects what happened
@@ -65,7 +66,8 @@ def main():
             if case.get("strip_tool_guidance_experiment"):
                 print(f"  [R1 ablation] {case['id']} stripped", flush=True)
                 try:
-                    r2 = run_r1_stripped_experiment(case, trials=TRIALS)
+                    #r2 = run_r1_stripped_experiment(case, trials=TRIALS)
+                    r2 = run_r1_stripped_experiment(case)
                 except Exception as e:
                     print(f"  [FAIL stripped] {case['id']}: {e}", flush=True)
                     continue
