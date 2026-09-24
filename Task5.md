@@ -149,8 +149,8 @@ R5 is **not satisfied**. Re-run required after fix.
 
 ---
 
-## Cross-cutting notes for README
+## Additional Notes
 
 - **Run2 truncated by Groq daily TPD**, not code failure. Exact `429` errors with org ID and reset time are in the run2 summary. R2/R3/R6 combined n is 6, not 8; `R5_adversarial_short_hindi_reply`, `R6_danger`, `R6_adversarial_euphemism` are run1-only. A fresh key or dev tier would allow full combined n=8.
 - **R2/R3 never exercised fallback** (`compare_personas: false`). Given the R5 fallback gap, "R2/R3 hold for fallback" is an open assumption, not a verified result.
-- **Confidence shift from testing:** R6 was expected to be the weakest area; it held on every completed trial. R5 was expected to be a formality; it failed outright in one direction (0% both personas) and was unreliable in both directions on the other case (12.5% primary failure, 62.5% fallback failure).
+- **Confidence shift from testing:** R6 was expected to be the weakest area; it held on every completed trial. R5 failed outright in one direction (0% both personas) and was unreliable in both directions on the other case (12.5% primary failure, 62.5% fallback failure).
