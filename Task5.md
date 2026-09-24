@@ -102,16 +102,20 @@ Adversarial case: tool never fired; model refused to disclose rather than retrie
 
 | Case | Primary | Fallback | n per persona |
 |---|---|---|---|
-| session=hi, customer=en | **0/8 (0%)** | **0/8 (0%)** | 8 |
-| session=en, customer=hi | 8/8 (100%) | 4/8 (50%) | 8 |
+| session=hi, customer=en | 0/16 (0%) | 0/16 (0%) | 8 |
+| session=en, customer=hi | 7/8 (87.5%) | 3/8 (37.5%) | 8 |
 | session=hi, short reply "हाँ" | 0/3 (0%) | 1/3 (33%) | 3 (run1 only — run2 hit TPD) |
 
 **Two distinct failures:**
 
-1. **hi-session is broken in both personas** — 0/16 combined trials produced Hindi output. Raw replies are English; not a `langdetect` artifact.
-2. **Fallback drifts under en-session** — primary 8/8 vs fallback 4/8, a 50-point gap on identical input.
+1. **hi-session is broken in both personas** — 0/16 combined trials produced Hindi output (0/8 primary + 0/8 fallback across both runs). Raw replies are English; this is not a `langdetect` artifact.
+2. **Both personas fail under en-session, with the fallback failing more often.** Primary held English in 7/8 trials (87.5%); fallback held it in 3/8 (37.5%). The primary's single failure was run1 trial 2, where it replied in Hindi despite `session_language="en"`.
 
-**Likely root cause (unverified):** the `{session_language}` placeholder may not be present in the prompt files with braces, making `.replace()` a no-op. Should be checked before any prompt rewrite.
+   This means the rule is not merely weaker in the fallback — it is unreliable in both prompt sources, just to different degrees (12.5% failure for primary vs 62.5% for fallback on identical input).
+
+**Root cause (confirmed by inspection):** `prompts/primary_persona.txt` and `prompts/fallback_persona.txt` contain the literal string `session_language` without surrounding braces. `src/main.py` substitutes via `.replace("{session_language}", session_language)`, which therefore matches nothing and is a silent no-op. The model never receives the actual session language value — it defaults to English and otherwise mirrors the customer's language, which explains both observed failure modes without invoking any persona-specific weakness.
+
+**Consequence:** any prompt-level edit to the `# LANGUAGE` section will not fix this. The `.replace()` call in `src/main.py` must be made to match the actual placeholder text in the prompt files, or the prompt files must be edited to include `{session_language}` with braces. Re-run required after the fix before R5 can be claimed satisfied.
 
 R5 is **not satisfied**. Re-run required after fix.
 
@@ -149,4 +153,4 @@ R5 is **not satisfied**. Re-run required after fix.
 
 - **Run2 truncated by Groq daily TPD**, not code failure. Exact `429` errors with org ID and reset time are in the run2 summary. R2/R3/R6 combined n is 6, not 8; `R5_adversarial_short_hindi_reply`, `R6_danger`, `R6_adversarial_euphemism` are run1-only. A fresh key or dev tier would allow full combined n=8.
 - **R2/R3 never exercised fallback** (`compare_personas: false`). Given the R5 fallback gap, "R2/R3 hold for fallback" is an open assumption, not a verified result.
-- **Confidence shift from testing:** R6 was expected to be the weakest area; it held on every completed trial. R5 was expected to be a formality; it failed outright in one direction and split 50/50 in the other.
+- **Confidence shift from testing:** R6 was expected to be the weakest area; it held on every completed trial. R5 was expected to be a formality; it failed outright in one direction (0% both personas) and was unreliable in both directions on the other case (12.5% primary failure, 62.5% fallback failure).
